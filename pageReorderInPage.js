@@ -1,58 +1,29 @@
 // ==UserScript==
-// @name         pageReorderToCsv
+// @name         单页种子体积升序排序
 // @namespace    http://tampermonkey.net/
 // @version      0.1
-// @description  单页种子体积升序排序后导出
+// @description  将当前页面的种子按照体积大小升序排序后重新显示
 // @author       https://github.com/yqhapi
 // @match        https://*/torrents.php*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // ==/UserScript==
-let tableHeaders = [
-    "标题",
-    "评论",
-    "发布时间",
-    "体积",
-    "做种",
-    "下载",
-    "完成",
-    "发布者",
-];
 var torrentsTable = document.querySelector(".torrents");
 var rows = Array.from(torrentsTable.rows);
 var header = rows.shift();
 const rowNumber = rows.length;
 const colNumber = rows[0].cells.length;
 const button = document.createElement("button");
-button.innerHTML = "打印";
+button.innerHTML = "排序";
 button.style.position = "fixed";
 button.style.right = "10px";
 button.style.top = "50%";
 button.style.transform = "translateY(-50%)";
 button.addEventListener("click", function () {
-    let csvContent = arrayToCSV(getTorrentsInfo(), tableHeaders);
-    let blob = new Blob([csvContent], {
-        type: "text/csv;charset=utf-8;",
-    });
-    let url = URL.createObjectURL(blob);
-    let link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "pageTorrentsSizeAsc.csv");
-    link.click();
+    sortTableBySize(getTorrentsInfo());
 });
 document.body.appendChild(button);
 
-function arrayToCSV(data, headers) {
-    let csvContent = "";
-    if (headers) {
-        csvContent += headers.join(",") + "\r\n";
-    }
-    data.forEach(function (rowArray) {
-        let row = rowArray.join(",");
-        csvContent += row + "\r\n";
-    });
-    return csvContent;
-}
 
 function getTorrentsInfo() {
     let tds = document
@@ -61,7 +32,7 @@ function getTorrentsInfo() {
     let infoArray = Array.from({
             length: rowNumber,
         },
-        () => Array((colNumber-1)) //去除了类型
+        () => Array((colNumber-1))
     );
     let infoIndex = 0;
     for (let i = 0; i < tds.length; i++) {
@@ -98,4 +69,20 @@ function convertToKB(size) {
         default:
             return number;
     }
+}
+
+function sortTableBySize(torrentsInfoArray) {
+    var rowMap = {};
+    rows.forEach(function(row) {
+        var titleInHtml = row.cells[1].textContent.trim();
+        rowMap[titleInHtml] = row;
+    });
+
+    torrentsInfoArray.forEach(function(item){
+        var sizeInArray = item[0];
+        var row = rowMap[sizeInArray];
+        if(row){
+            torrentsTable.appendChild(row);
+        }
+    });
 }
