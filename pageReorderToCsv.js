@@ -102,12 +102,16 @@ function convertToKB(size) {
 
     switch(unit) {
         case 'TB':
+        case 'TiB':
             return number * 1024 * 1024 * 1024;
         case 'GB':
+        case 'GiB':
             return number * 1024 * 1024;
         case 'MB':
+        case 'MiB':
             return number * 1024;
         case 'KB':
+        case 'KiB':
             return number;
         default:
             return number;
