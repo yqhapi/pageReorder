@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         单页种子体积升序排序
+// @name         pageReorderInPage
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  将当前页面的种子按照体积大小升序排序后重新显示

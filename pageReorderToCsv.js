@@ -8,21 +8,38 @@
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // ==/UserScript==
-let tableHeaders = [
-    "标题",
-    "评论",
-    "发布时间",
-    "体积",
-    "做种",
-    "下载",
-    "完成",
-    "发布者",
-];
 var torrentsTable = document.querySelector(".torrents");
 var rows = Array.from(torrentsTable.rows);
 var header = rows.shift();
 const rowNumber = rows.length;
 const colNumber = rows[0].cells.length;
+const domain = document.location.hostname;
+if(domain.includes("52")){
+    var colSaveNumber = 9;
+    var tableHeaders = [
+        "标题",
+        "评论",
+        "发布时间",
+        "体积",
+        "做种",
+        "下载",
+        "完成",
+        "未完成数",
+        "发布者",
+    ];
+}else{
+    var colSaveNumber = 8;
+    var tableHeaders = [
+        "标题",
+        "评论",
+        "发布时间",
+        "体积",
+        "做种",
+        "下载",
+        "完成",
+        "发布者",
+    ];
+}
 const button = document.createElement("button");
 button.innerHTML = "打印";
 button.style.position = "fixed";
@@ -55,21 +72,18 @@ function arrayToCSV(data, headers) {
 }
 
 function getTorrentsInfo() {
-    let tds = document
-        .querySelector(".torrents")
-        .querySelectorAll("td.rowfollow");
     let infoArray = Array.from({
             length: rowNumber,
         },
-        () => Array((colNumber-1)) //去除了类型
+        () => Array(colSaveNumber)
     );
     let infoIndex = 0;
-    for (let i = 0; i < tds.length; i++) {
-        if (tds[i].innerText === "") {
+    for (let i = 0; i < (rowNumber*colNumber); i++) {
+        if(rows[Math.floor(i / colNumber)].cells[i % colNumber].innerText === '' || rows[Math.floor(i / colNumber)].cells[i % colNumber].innerText === '-'){
             continue;
         }
-        infoArray[Math.floor(infoIndex / 8)][infoIndex % 8] =
-            tds[i].textContent.trim();
+        infoArray[Math.floor(infoIndex / colSaveNumber)][infoIndex % colSaveNumber] =
+            rows[Math.floor(i / colNumber)].cells[i % colNumber].textContent.trim();
         infoIndex++;
     }
     infoArray.sort((a,b)=>{
