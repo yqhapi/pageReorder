@@ -26,26 +26,18 @@ document.body.appendChild(button);
 
 
 function getTorrentsInfo() {
-    let tds = document
-        .querySelector(".torrents")
-        .querySelectorAll("td.rowfollow");
     let infoArray = Array.from({
             length: rowNumber,
         },
-        () => Array((colNumber-1))
+        () => Array(colNumber)
     );
-    let infoIndex = 0;
-    for (let i = 0; i < tds.length; i++) {
-        if (tds[i].innerText === "") {
-            continue;
-        }
-        infoArray[Math.floor(infoIndex / 8)][infoIndex % 8] =
-            tds[i].textContent.trim();
-        infoIndex++;
+    for (let i = 0; i < (rowNumber*colNumber); i++) {
+        infoArray[Math.floor(i / colNumber)][i % colNumber] =
+            rows[Math.floor(i / colNumber)].cells[i % colNumber].textContent.trim();
     }
     infoArray.sort((a,b)=>{
-        let sizeA = convertToKB(a[3]);
-        let sizeB = convertToKB(b[3]);
+        let sizeA = convertToKB(a[4]);
+        let sizeB = convertToKB(b[4]);
 
         return sizeA - sizeB;
     })
@@ -79,7 +71,7 @@ function sortTableBySize(torrentsInfoArray) {
     });
 
     torrentsInfoArray.forEach(function(item){
-        var sizeInArray = item[0];
+        var sizeInArray = item[1];
         var row = rowMap[sizeInArray];
         if(row){
             torrentsTable.appendChild(row);
