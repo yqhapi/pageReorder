@@ -1,19 +1,24 @@
 // ==UserScript==
 // @name         pageReorderToCsv
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      1.1
 // @description  单页种子体积升序排序后导出
 // @author       https://github.com/yqhapi
 // @match        https://*/torrents.php*
+// @match        https://*/browse.php*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // ==/UserScript==
-var torrentsTable = document.querySelector(".torrents");
+const domain = document.location.hostname;
+if(document.location.hostname.includes("im")){
+    var torrentsTable = document.querySelector("#torrent_table");
+}else{
+    var torrentsTable = document.querySelector(".torrents");
+}
 var rows = Array.from(torrentsTable.rows);
 var header = rows.shift();
 const rowNumber = rows.length;
 const colNumber = rows[0].cells.length;
-const domain = document.location.hostname;
 if(domain.includes("52")){
     var colSaveNumber = 9;
     var tableHeaders = [
@@ -26,6 +31,19 @@ if(domain.includes("52")){
         "完成",
         "未完成数",
         "发布者",
+    ];
+}else if(domain.includes("im")){
+    var colSaveNumber = 9;
+    var tableHeaders = [
+        "标题",
+        "文件数",
+        "评论",
+        "发布时间",
+        "存活时间",
+        "体积",
+        "完成次数",
+        "做种/下载",
+        "上传者",
     ];
 }else{
     var colSaveNumber = 8;
@@ -86,12 +104,21 @@ function getTorrentsInfo() {
             rows[Math.floor(i / colNumber)].cells[i % colNumber].textContent.trim();
         infoIndex++;
     }
-    infoArray.sort((a,b)=>{
-        let sizeA = convertToKB(a[3]);
-        let sizeB = convertToKB(b[3]);
-
-        return sizeA - sizeB;
-    })
+    if(domain.includes("im")){
+        infoArray.sort((a,b)=>{
+            let sizeA = convertToKB(a[6]);
+            let sizeB = convertToKB(b[6]);
+    
+            return sizeA - sizeB;
+        })
+    }else{
+        infoArray.sort((a,b)=>{
+            let sizeA = convertToKB(a[4]);
+            let sizeB = convertToKB(b[4]);
+    
+            return sizeA - sizeB;
+        })
+    }
     return infoArray;
 }
 

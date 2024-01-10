@@ -1,14 +1,19 @@
 // ==UserScript==
 // @name         pageReorderInPage
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      1.1
 // @description  将当前页面的种子按照体积大小升序排序后重新显示
 // @author       https://github.com/yqhapi
 // @match        https://*/torrents.php*
+// @match        https://*/browse.php*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // ==/UserScript==
-var torrentsTable = document.querySelector(".torrents");
+if(document.location.hostname.includes("im")){
+    var torrentsTable = document.querySelector("#torrent_table");
+}else{
+    var torrentsTable = document.querySelector(".torrents");
+}
 var rows = Array.from(torrentsTable.rows);
 var header = rows.shift();
 const rowNumber = rows.length;
@@ -35,12 +40,21 @@ function getTorrentsInfo() {
         infoArray[Math.floor(i / colNumber)][i % colNumber] =
             rows[Math.floor(i / colNumber)].cells[i % colNumber].textContent.trim();
     }
-    infoArray.sort((a,b)=>{
-        let sizeA = convertToKB(a[4]);
-        let sizeB = convertToKB(b[4]);
-
-        return sizeA - sizeB;
-    })
+    if(document.location.hostname.includes("im")){
+        infoArray.sort((a,b)=>{
+            let sizeA = convertToKB(a[6]);
+            let sizeB = convertToKB(b[6]);
+    
+            return sizeA - sizeB;
+        })
+    }else{
+        infoArray.sort((a,b)=>{
+            let sizeA = convertToKB(a[4]);
+            let sizeB = convertToKB(b[4]);
+    
+            return sizeA - sizeB;
+        })
+    }
     return infoArray;
 }
 
